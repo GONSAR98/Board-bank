@@ -5,80 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Board Bank</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Arial, sans-serif;
       background: #f4f1e8;
-      color: #17212b;
-    }
-
-    header {
-      background: #17324d;
-      color: white;
-      padding: 24px 18px;
-      text-align: center;
-    }
-
-    header h1 {
       margin: 0;
-      font-size: 30px;
-    }
-
-    header p {
-      margin: 8px 0 0;
-      opacity: 0.85;
-    }
-
-    main {
-      max-width: 600px;
-      margin: auto;
       padding: 20px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
     }
 
     .card {
       background: white;
-      border-radius: 18px;
       padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
 
-    h2 {
-      margin-top: 0;
-    }
-
-    input {
+    input, button {
       width: 100%;
+      box-sizing: border-box;
       padding: 14px;
+      margin-top: 10px;
+      border-radius: 10px;
       border: 1px solid #ccc;
-      border-radius: 12px;
       font-size: 16px;
-      margin-bottom: 12px;
     }
 
     button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      background: #17324d;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
       cursor: pointer;
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    .game {
-      display: none;
+      background: #222;
+      color: white;
+      border: none;
     }
 
     .resource {
@@ -86,11 +55,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .resource:last-child {
-      border-bottom: none;
+      border-bottom: 1px solid #ddd;
     }
 
     .buttons {
@@ -100,217 +65,400 @@
     }
 
     .buttons button {
-      width: 42px;
-      padding: 8px;
-      font-size: 20px;
+      width: 45px;
+      margin: 0;
+      padding: 10px;
     }
 
-    .number {
+    .count {
       min-width: 30px;
       text-align: center;
       font-weight: bold;
-      font-size: 18px;
+    }
+
+    #game {
+      display: none;
+    }
+
+    .error {
+      color: #b00020;
+      margin-top: 10px;
     }
 
     .success {
-      display: none;
-      background: #e4f5e8;
-      color: #17652b;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 12px;
+      color: #087f23;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
 
-<header>
+<div class="container">
+
   <h1>🏝️ Board Bank</h1>
-  <p>La banca digital para tus juegos de mesa</p>
-</header>
 
-<main>
-
-  <div class="card" id="setup">
-
-    <h2>🎲 Crear partida</h2>
-
-    <p>
-      Vamos a crear una partida de prueba.
-    </p>
+  <div id="setup" class="card">
+    <h2>Crear partida</h2>
 
     <input
-      type="text"
       id="playerName"
+      type="text"
       placeholder="Tu nombre"
-      maxlength="20"
     >
 
-    <button onclick="startGame()">
+    <button onclick="createGame()">
       Crear partida
     </button>
 
-    <div class="success" id="success">
-      ✅ ¡Partida creada!
+    <div id="setupMessage"></div>
+  </div>
+
+  <div id="game">
+
+    <div class="card">
+      <h2>Partida</h2>
+      <p>
+        Código:
+        <strong id="gameCode"></strong>
+      </p>
+
+      <p>
+        Jugador:
+        <strong id="currentPlayer"></strong>
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>🏦 Banco</h2>
+      <div id="bank"></div>
+    </div>
+
+    <div class="card">
+      <h2>🎒 Mis recursos</h2>
+      <div id="resources"></div>
     </div>
 
   </div>
 
-  <div class="card game" id="game">
-
-    <h2>🏦 Banco</h2>
-
-    <div class="resource">
-      <span>🪵 Madera</span>
-      <strong id="wood">19</strong>
-    </div>
-
-    <div class="resource">
-      <span>🧱 Ladrillo</span>
-      <strong id="brick">19</strong>
-    </div>
-
-    <div class="resource">
-      <span>🌾 Trigo</span>
-      <strong id="wheat">19</strong>
-    </div>
-
-    <div class="resource">
-      <span>🐑 Oveja</span>
-      <strong id="sheep">19</strong>
-    </div>
-
-    <div class="resource">
-      <span>⛏️ Mineral</span>
-      <strong id="ore">19</strong>
-    </div>
-
-  </div>
-
-  <div class="card game">
-
-    <h2>👤 <span id="name"></span></h2>
-
-    <p>Mis recursos</p>
-
-    <div class="resource">
-      <span>🪵 Madera</span>
-      <div class="buttons">
-        <button onclick="changeResource('wood', -1)">−</button>
-        <span class="number" id="myWood">0</span>
-        <button onclick="changeResource('wood', 1)">+</button>
-      </div>
-    </div>
-
-    <div class="resource">
-      <span>🧱 Ladrillo</span>
-      <div class="buttons">
-        <button onclick="changeResource('brick', -1)">−</button>
-        <span class="number" id="myBrick">0</span>
-        <button onclick="changeResource('brick', 1)">+</button>
-      </div>
-    </div>
-
-    <div class="resource">
-      <span>🌾 Trigo</span>
-      <div class="buttons">
-        <button onclick="changeResource('wheat', -1)">−</button>
-        <span class="number" id="myWheat">0</span>
-        <button onclick="changeResource('wheat', 1)">+</button>
-      </div>
-    </div>
-
-    <div class="resource">
-      <span>🐑 Oveja</span>
-      <div class="buttons">
-        <button onclick="changeResource('sheep', -1)">−</button>
-        <span class="number" id="mySheep">0</span>
-        <button onclick="changeResource('sheep', 1)">+</button>
-      </div>
-    </div>
-
-    <div class="resource">
-      <span>⛏️ Mineral</span>
-      <div class="buttons">
-        <button onclick="changeResource('ore', -1)">−</button>
-        <span class="number" id="myOre">0</span>
-        <button onclick="changeResource('ore', 1)">+</button>
-      </div>
-    </div>
-
-  </div>
-
-</main>
+</div>
 
 <script>
 
-  const resources = {
-    wood: 0,
-    brick: 0,
-    wheat: 0,
-    sheep: 0,
-    ore: 0
+  // =========================================================
+  // SUPABASE
+  // =========================================================
+
+  const SUPABASE_URL = https://sjbpaexicqkswrlqgfoj.supabase.co;
+  const SUPABASE_KEY = sb_publishable_puFoRi_x7b6oSsvStPcdAw_YDRPdeYy;
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+  // =========================================================
+  // VARIABLES
+  // =========================================================
+
+  let gameId = null;
+  let playerId = null;
+
+  const resourceNames = {
+    wood: "🌲 Madera",
+    brick: "🧱 Arcilla",
+    wheat: "🌾 Trigo",
+    sheep: "🐑 Oveja",
+    ore: "⛏️ Mineral"
   };
 
-  const bank = {
-    wood: 19,
-    brick: 19,
-    wheat: 19,
-    sheep: 19,
-    ore: 19
-  };
 
-  function startGame() {
+  // =========================================================
+  // CREAR PARTIDA
+  // =========================================================
 
-    const name = document.getElementById("playerName").value.trim();
+  async function createGame() {
+
+    const nameInput = document.getElementById("playerName");
+    const message = document.getElementById("setupMessage");
+
+    const name = nameInput.value.trim();
 
     if (!name) {
-      alert("Escribe tu nombre primero 🙂");
+      message.innerHTML =
+        '<div class="error">Escribe tu nombre.</div>';
       return;
     }
 
-    document.getElementById("name").textContent = name;
+    message.innerHTML = "Creando partida...";
 
-    document.getElementById("setup").style.display = "none";
+    try {
 
-    document.querySelectorAll(".game").forEach(element => {
-      element.style.display = "block";
+      const code = Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
+
+      const { data: game, error: gameError } =
+        await supabaseClient
+          .from("games")
+          .insert({
+            code: code
+          })
+          .select()
+          .single();
+
+      if (gameError) {
+        throw gameError;
+      }
+
+      gameId = game.id;
+
+      const { data: player, error: playerError } =
+        await supabaseClient
+          .from("players")
+          .insert({
+            game_id: gameId,
+            name: name
+          })
+          .select()
+          .single();
+
+      if (playerError) {
+        throw playerError;
+      }
+
+      playerId = player.id;
+
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("game").style.display = "block";
+
+      document.getElementById("gameCode").textContent = code;
+      document.getElementById("currentPlayer").textContent = name;
+
+      await loadGame();
+
+      subscribeToGame();
+
+    } catch (error) {
+
+      console.error(error);
+
+      message.innerHTML =
+        '<div class="error">No se pudo crear la partida. Revisa la conexión con Supabase.</div>';
+    }
+  }
+
+
+  // =========================================================
+  // CARGAR PARTIDA
+  // =========================================================
+
+  async function loadGame() {
+
+    await loadBank();
+    await loadResources();
+
+  }
+
+
+  // =========================================================
+  // BANCO
+  // =========================================================
+
+  async function loadBank() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("resource_cards")
+        .select("resource_type")
+        .eq("game_id", gameId)
+        .is("owner_player_id", null);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const counts = {
+      wood: 0,
+      brick: 0,
+      wheat: 0,
+      sheep: 0,
+      ore: 0
+    };
+
+    data.forEach(card => {
+      counts[card.resource_type]++;
     });
 
-    updateScreen();
+    const bank = document.getElementById("bank");
+
+    bank.innerHTML = "";
+
+    for (const resource in counts) {
+
+      bank.innerHTML += `
+        <div class="resource">
+          <span>${resourceNames[resource]}</span>
+          <strong>${counts[resource]}</strong>
+        </div>
+      `;
+    }
   }
 
-  function changeResource(resource, amount) {
 
-    if (amount > 0 && bank[resource] <= 0) {
-      alert("La banca no tiene más cartas de este recurso.");
+  // =========================================================
+  // MIS RECURSOS
+  // =========================================================
+
+  async function loadResources() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("resource_cards")
+        .select("resource_type")
+        .eq("game_id", gameId)
+        .eq("owner_player_id", playerId);
+
+    if (error) {
+      console.error(error);
       return;
     }
 
-    if (amount < 0 && resources[resource] <= 0) {
+    const counts = {
+      wood: 0,
+      brick: 0,
+      wheat: 0,
+      sheep: 0,
+      ore: 0
+    };
+
+    data.forEach(card => {
+      counts[card.resource_type]++;
+    });
+
+    const resources = document.getElementById("resources");
+
+    resources.innerHTML = "";
+
+    for (const resource in counts) {
+
+      resources.innerHTML += `
+        <div class="resource">
+
+          <span>${resourceNames[resource]}</span>
+
+          <div class="buttons">
+
+            <button onclick="takeResource('${resource}')">
+              +
+            </button>
+
+            <span class="count">
+              ${counts[resource]}
+            </span>
+
+            <button onclick="returnResource('${resource}')">
+              −
+            </button>
+
+          </div>
+
+        </div>
+      `;
+    }
+  }
+
+
+  // =========================================================
+  // TOMAR RECURSO
+  // =========================================================
+
+  async function takeResource(resource) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("resource_cards")
+        .select("id")
+        .eq("game_id", gameId)
+        .eq("resource_type", resource)
+        .is("owner_player_id", null)
+        .limit(1);
+
+    if (error || !data || data.length === 0) {
       return;
     }
 
-    resources[resource] += amount;
-    bank[resource] -= amount;
+    const cardId = data[0].id;
 
-    updateScreen();
+    await supabaseClient
+      .from("resource_cards")
+      .update({
+        owner_player_id: playerId
+      })
+      .eq("id", cardId);
+
+    await loadGame();
   }
 
-  function updateScreen() {
 
-    document.getElementById("wood").textContent = bank.wood;
-    document.getElementById("brick").textContent = bank.brick;
-    document.getElementById("wheat").textContent = bank.wheat;
-    document.getElementById("sheep").textContent = bank.sheep;
-    document.getElementById("ore").textContent = bank.ore;
+  // =========================================================
+  // DEVOLVER RECURSO
+  // =========================================================
 
-    document.getElementById("myWood").textContent = resources.wood;
-    document.getElementById("myBrick").textContent = resources.brick;
-    document.getElementById("myWheat").textContent = resources.wheat;
-    document.getElementById("mySheep").textContent = resources.sheep;
-    document.getElementById("myOre").textContent = resources.ore;
+  async function returnResource(resource) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("resource_cards")
+        .select("id")
+        .eq("game_id", gameId)
+        .eq("resource_type", resource)
+        .eq("owner_player_id", playerId)
+        .limit(1);
+
+    if (error || !data || data.length === 0) {
+      return;
+    }
+
+    const cardId = data[0].id;
+
+    await supabaseClient
+      .from("resource_cards")
+      .update({
+        owner_player_id: null
+      })
+      .eq("id", cardId);
+
+    await loadGame();
+  }
+
+
+  // =========================================================
+  // ACTUALIZACIÓN EN TIEMPO REAL
+  // =========================================================
+
+  function subscribeToGame() {
+
+    supabaseClient
+      .channel("game-" + gameId)
+
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "resource_cards",
+          filter: "game_id=eq." + gameId
+        },
+        async () => {
+          await loadGame();
+        }
+      )
+
+      .subscribe();
   }
 
 </script>
