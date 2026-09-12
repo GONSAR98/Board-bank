@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board Bank</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f1e8;
+      color: #17212b;
+    }
+
+    header {
+      background: #17324d;
+      color: white;
+      padding: 24px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      opacity: 0.85;
+    }
+
+    main {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #17324d;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .game {
+      display: none;
+    }
+
+    .resource {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .resource:last-child {
+      border-bottom: none;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .buttons button {
+      width: 42px;
+      padding: 8px;
+      font-size: 20px;
+    }
+
+    .number {
+      min-width: 30px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .success {
+      display: none;
+      background: #e4f5e8;
+      color: #17652b;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🏝️ Board Bank</h1>
+  <p>La banca digital para tus juegos de mesa</p>
+</header>
+
+<main>
+
+  <div class="card" id="setup">
+
+    <h2>🎲 Crear partida</h2>
+
+    <p>
+      Vamos a crear una partida de prueba.
+    </p>
+
+    <input
+      type="text"
+      id="playerName"
+      placeholder="Tu nombre"
+      maxlength="20"
+    >
+
+    <button onclick="startGame()">
+      Crear partida
+    </button>
+
+    <div class="success" id="success">
+      ✅ ¡Partida creada!
+    </div>
+
+  </div>
+
+  <div class="card game" id="game">
+
+    <h2>🏦 Banco</h2>
+
+    <div class="resource">
+      <span>🪵 Madera</span>
+      <strong id="wood">19</strong>
+    </div>
+
+    <div class="resource">
+      <span>🧱 Ladrillo</span>
+      <strong id="brick">19</strong>
+    </div>
+
+    <div class="resource">
+      <span>🌾 Trigo</span>
+      <strong id="wheat">19</strong>
+    </div>
+
+    <div class="resource">
+      <span>🐑 Oveja</span>
+      <strong id="sheep">19</strong>
+    </div>
+
+    <div class="resource">
+      <span>⛏️ Mineral</span>
+      <strong id="ore">19</strong>
+    </div>
+
+  </div>
+
+  <div class="card game">
+
+    <h2>👤 <span id="name"></span></h2>
+
+    <p>Mis recursos</p>
+
+    <div class="resource">
+      <span>🪵 Madera</span>
+      <div class="buttons">
+        <button onclick="changeResource('wood', -1)">−</button>
+        <span class="number" id="myWood">0</span>
+        <button onclick="changeResource('wood', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="resource">
+      <span>🧱 Ladrillo</span>
+      <div class="buttons">
+        <button onclick="changeResource('brick', -1)">−</button>
+        <span class="number" id="myBrick">0</span>
+        <button onclick="changeResource('brick', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="resource">
+      <span>🌾 Trigo</span>
+      <div class="buttons">
+        <button onclick="changeResource('wheat', -1)">−</button>
+        <span class="number" id="myWheat">0</span>
+        <button onclick="changeResource('wheat', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="resource">
+      <span>🐑 Oveja</span>
+      <div class="buttons">
+        <button onclick="changeResource('sheep', -1)">−</button>
+        <span class="number" id="mySheep">0</span>
+        <button onclick="changeResource('sheep', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="resource">
+      <span>⛏️ Mineral</span>
+      <div class="buttons">
+        <button onclick="changeResource('ore', -1)">−</button>
+        <span class="number" id="myOre">0</span>
+        <button onclick="changeResource('ore', 1)">+</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+
+  const resources = {
+    wood: 0,
+    brick: 0,
+    wheat: 0,
+    sheep: 0,
+    ore: 0
+  };
+
+  const bank = {
+    wood: 19,
+    brick: 19,
+    wheat: 19,
+    sheep: 19,
+    ore: 19
+  };
+
+  function startGame() {
+
+    const name = document.getElementById("playerName").value.trim();
+
+    if (!name) {
+      alert("Escribe tu nombre primero 🙂");
+      return;
+    }
+
+    document.getElementById("name").textContent = name;
+
+    document.getElementById("setup").style.display = "none";
+
+    document.querySelectorAll(".game").forEach(element => {
+      element.style.display = "block";
+    });
+
+    updateScreen();
+  }
+
+  function changeResource(resource, amount) {
+
+    if (amount > 0 && bank[resource] <= 0) {
+      alert("La banca no tiene más cartas de este recurso.");
+      return;
+    }
+
+    if (amount < 0 && resources[resource] <= 0) {
+      return;
+    }
+
+    resources[resource] += amount;
+    bank[resource] -= amount;
+
+    updateScreen();
+  }
+
+  function updateScreen() {
+
+    document.getElementById("wood").textContent = bank.wood;
+    document.getElementById("brick").textContent = bank.brick;
+    document.getElementById("wheat").textContent = bank.wheat;
+    document.getElementById("sheep").textContent = bank.sheep;
+    document.getElementById("ore").textContent = bank.ore;
+
+    document.getElementById("myWood").textContent = resources.wood;
+    document.getElementById("myBrick").textContent = resources.brick;
+    document.getElementById("myWheat").textContent = resources.wheat;
+    document.getElementById("mySheep").textContent = resources.sheep;
+    document.getElementById("myOre").textContent = resources.ore;
+  }
+
+</script>
+
+</body>
+</html>
