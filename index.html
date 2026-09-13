@@ -116,6 +116,28 @@ Unirse a partida
 
     <div id="setupMessage"></div>
   </div>
+  <div id="joinArea" style="display:none;">
+  <h3>Unirse a una partida</h3>
+
+  <input
+    id="joinName"
+    type="text"
+    placeholder="Tu nombre"
+  >
+
+  <input
+    id="joinCode"
+    type="text"
+    placeholder="Código de partida"
+    maxlength="6"
+  >
+
+  <button onclick="joinGame()">
+    Entrar en la partida
+  </button>
+
+  <div id="joinMessage"></div>
+</div>
 
   <div id="game">
 
@@ -180,7 +202,10 @@ const SUPABASE_KEY = "sb_publishable_puFoRi_x7b6oSsvStPcdAw_YDRPdeYy";
   // =========================================================
   // CREAR PARTIDA
   // =========================================================
-
+function showJoinGame() {
+  document.getElementById("joinArea").style.display = "block";
+  document.getElementById("joinName").focus();
+}
   async function createGame() {
 
     const nameInput = document.getElementById("playerName");
